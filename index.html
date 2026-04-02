@@ -1,0 +1,2112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cup — Eat Your Cup | Edible Cups from Nepal</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --warm: #C47A3B;
+      --warm-light: #E8A862;
+      --cream: #FFF8F0;
+      --dark: #1A1209;
+      --forest: #2D5016;
+      --forest-light: #4A7A2B;
+      --nepal-red: #C41E3A;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--cream); }
+    ::-webkit-scrollbar-thumb { background: var(--warm); border-radius: 10px; }
+
+    /* LOADER */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--dark);
+      display: flex; align-items: center; justify-content: center; flex-direction: column;
+      transition: opacity 0.8s, visibility 0.8s;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; }
+    .loader-cup {
+      width: 80px; height: 70px;
+      border: 5px solid var(--warm);
+      border-top: none;
+      border-radius: 0 0 30px 30px;
+      position: relative;
+      animation: loaderPulse 1.5s ease-in-out infinite;
+    }
+    .loader-cup::after {
+      content: '';
+      position: absolute; right: -25px; top: 10px;
+      width: 20px; height: 30px;
+      border: 4px solid var(--warm);
+      border-left: none;
+      border-radius: 0 15px 15px 0;
+    }
+    
+    .loader-steam {
+      display: flex; gap: 8px; margin-bottom: 10px;
+    }
+    .loader-steam span {
+      width: 3px; height: 20px; background: var(--warm-light);
+      border-radius: 10px;
+      animation: steam 1.2s ease-in-out infinite;
+    }
+    .loader-steam span:nth-child(2) { animation-delay: 0.2s; height: 25px; }
+    .loader-steam span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes steam {
+      0%, 100% { transform: translateY(0) scaleY(1); opacity: 0.3; }
+      50% { transform: translateY(-10px) scaleY(1.3); opacity: 1; }
+    }
+    @keyframes loaderPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* CURSOR */
+    .custom-cursor {
+      width: 20px; height: 20px;
+      border: 2px solid var(--warm);
+      border-radius: 50%;
+      position: fixed; pointer-events: none; z-index: 9998;
+      transition: transform 0.15s, background 0.15s;
+      mix-blend-mode: difference;
+    }
+    .custom-cursor.hover {
+      transform: scale(2.5);
+      background: rgba(196,122,59,0.2);
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 1000;
+      padding: 20px 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: all 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(26,18,9,0.95);
+      backdrop-filter: blur(20px);
+      padding: 12px 60px;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.2);
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 800;
+      color: white;
+  
+      letter-spacing: -1px;
+    }
+    .nav-logo span { color: var(--warm); }
+    .nav-links { display: flex; gap: 35px; align-items: center; }
+    .nav-links a {
+      color: rgba(255,255,255,0.8); text-decoration: none;
+      font-size: 0.9rem; font-weight: 500;
+      position: relative; transition: color 0.3s;
+      letter-spacing: 0.5px;
+    }
+    .nav-links a:hover { color: var(--warm-light); }
+    .nav-links a::after {
+      content: ''; position: absolute;
+      bottom: -5px; left: 0; width: 0; height: 2px;
+      background: var(--warm); transition: width 0.3s;
+    }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-cta {
+      background: var(--warm) !important;
+      color: white !important;
+      padding: 10px 28px;
+      border-radius: 50px;
+      font-weight: 600 !important;
+      transition: all 0.3s !important;
+    }
+    .nav-cta:hover {
+      background: var(--warm-light) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(196,122,59,0.4);
+    }
+    .nav-cta::after { display: none !important; }
+
+    /* MOBILE NAV */
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px; cursor: pointer;
+      z-index: 1001;
+    }
+    .hamburger span {
+      width: 28px; height: 2px; background: white;
+      transition: all 0.3s;
+    }
+    .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    .mobile-menu {
+      display: none; position: fixed; inset: 0;
+      background: rgba(26,18,9,0.98);
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 30px; z-index: 999;
+      opacity: 0; visibility: hidden; transition: all 0.4s;
+    }
+    .mobile-menu.active { opacity: 1; visibility: visible; }
+    .mobile-menu a {
+      color: white; text-decoration: none;
+      font-size: 1.5rem; font-family: 'Playfair Display', serif;
+      transition: color 0.3s;
+    }
+    .mobile-menu a:hover { color: var(--warm); }
+
+    /* HERO */
+    #hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1A1209 0%, #2D1F0E 40%, #3D2914 100%);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg-pattern {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle at 20% 50%, rgba(196,122,59,0.08) 0%, transparent 50%),
+                         radial-gradient(circle at 80% 20%, rgba(196,122,59,0.05) 0%, transparent 40%),
+                         radial-gradient(circle at 60% 80%, rgba(45,80,22,0.05) 0%, transparent 40%);
+    }
+    .hero-particles {
+      position: absolute; inset: 0; overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      width: 4px; height: 4px;
+      background: var(--warm);
+      border-radius: 50%;
+      opacity: 0;
+      animation: particleFloat 6s ease-in-out infinite;
+    }
+    @keyframes particleFloat {
+      0% { opacity: 0; transform: translateY(100vh) scale(0); }
+      20% { opacity: 0.6; }
+      100% { opacity: 0; transform: translateY(-10vh) scale(1); }
+    }
+
+    .hero-content {
+      text-align: center; z-index: 10; padding: 0 20px;
+      max-width: 900px;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(196,122,59,0.15);
+      border: 1px solid rgba(196,122,59,0.3);
+      padding: 8px 20px; border-radius: 50px;
+      color: var(--warm-light);
+      font-size: 0.85rem; font-weight: 500;
+      margin-bottom: 30px;
+      animation: fadeInDown 1s 0.5s both;
+    }
+    .hero-badge .dot {
+      width: 8px; height: 8px; background: var(--forest-light);
+      border-radius: 50%; animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.5); }
+    }
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 800; color: white;
+      line-height: 1.1; margin-bottom: 10px;
+      animation: fadeInUp 1s 0.7s both;
+    }
+    .hero-title .accent { color: var(--warm); }
+    .hero-title .outline {
+      -webkit-text-stroke: 2px var(--warm);
+      color: transparent;
+    }
+    .hero-subtitle-handwritten {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(1.3rem, 3vw, 2rem);
+      color: var(--warm-light);
+      margin-bottom: 20px;
+      animation: fadeInUp 1s 0.9s both;
+    }
+    .hero-desc {
+      font-size: clamp(1rem, 1.5vw, 1.2rem);
+      color: rgba(255,255,255,0.7);
+      max-width: 600px; margin: 0 auto 40px;
+      line-height: 1.8;
+      animation: fadeInUp 1s 1.1s both;
+    }
+    .hero-btns {
+      display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+      animation: fadeInUp 1s 1.3s both;
+    }
+    .btn-primary {
+      background: var(--warm);
+      color: white; padding: 16px 40px;
+      border-radius: 50px; border: none;
+      font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: all 0.3s;
+      display: inline-flex; align-items: center; gap: 10px;
+      text-decoration: none;
+      box-shadow: 0 8px 30px rgba(196,122,59,0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(196,122,59,0.5);
+      background: var(--warm-light);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: white; padding: 16px 40px;
+      border-radius: 50px;
+      border: 2px solid rgba(255,255,255,0.3);
+      font-size: 1rem; font-weight: 500;
+      cursor: pointer; transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 10px;
+    }
+    .btn-secondary:hover {
+      border-color: var(--warm);
+      color: var(--warm-light);
+      transform: translateY(-3px);
+    }
+
+    .hero-scroll-indicator {
+      position: absolute; bottom: 40px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: rgba(255,255,255,0.4); font-size: 0.75rem;
+      letter-spacing: 2px; text-transform: uppercase;
+      animation: fadeInUp 1s 1.8s both;
+    }
+    .scroll-line {
+      width: 1px; height: 40px; background: rgba(255,255,255,0.2);
+      position: relative; overflow: hidden;
+    }
+    .scroll-line::after {
+      content: ''; position: absolute;
+      width: 100%; height: 50%; background: var(--warm);
+      animation: scrollDown 2s ease-in-out infinite;
+    }
+    @keyframes scrollDown {
+      0% { top: -50%; }
+      100% { top: 100%; }
+    }
+
+    /* MARQUEE */
+    .marquee-section {
+      background: var(--warm);
+      padding: 15px 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .marquee-track {
+      display: inline-flex;
+      animation: marquee 30s linear infinite;
+    }
+    .marquee-item {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: white;
+      padding: 0 40px;
+      display: inline-flex; align-items: center; gap: 15px;
+    }
+    .marquee-item .sep {
+      width: 6px; height: 6px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 50%;
+    }
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* SECTIONS */
+    section { padding: 100px 60px; }
+    .section-label {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 0.8rem; font-weight: 600;
+      color: var(--warm);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 15px;
+    }
+    .section-label::before {
+      content: ''; width: 30px; height: 2px; background: var(--warm);
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+    .section-desc {
+      font-size: 1.1rem;
+      color: #666;
+      max-width: 600px;
+      line-height: 1.8;
+    }
+
+    /* ABOUT / STORY */
+    #about {
+      background: white;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .about-visual {
+      position: relative;
+      height: 550px;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .about-img-main {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #D4A574, #A0522D);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cup-illustration {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      background: linear-gradient(135deg, #F5E6D3, #E8D5C0);
+      border-radius: 20px;
+    }
+    .cup-3d {
+      width: 200px; height: 180px;
+      background: linear-gradient(145deg, #D4A574, #8B6914);
+      border-radius: 0 0 50% 50%;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(139,105,20,0.3);
+      animation: cupFloat 4s ease-in-out infinite;
+    }
+    .cup-3d::before {
+      content: ''; position: absolute;
+      right: -30px; top: 30px;
+      width: 30px; height: 50px;
+      border: 6px solid #8B6914;
+      border-left: none;
+      border-radius: 0 25px 25px 0;
+    }
+    .cup-steam-anim {
+      position: absolute; top: -40px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; gap: 12px;
+    }
+    .cup-steam-anim span {
+      width: 4px; background: rgba(196,122,59,0.4);
+      border-radius: 10px;
+      animation: steamRise 2s ease-in-out infinite;
+    }
+    .cup-steam-anim span:nth-child(1) { height: 30px; animation-delay: 0s; }
+    .cup-steam-anim span:nth-child(2) { height: 40px; animation-delay: 0.3s; }
+    .cup-steam-anim span:nth-child(3) { height: 25px; animation-delay: 0.6s; }
+    @keyframes steamRise {
+      0%, 100% { opacity: 0.3; transform: translateY(0) scaleY(1); }
+      50% { opacity: 0.8; transform: translateY(-15px) scaleY(1.2); }
+    }
+    @keyframes cupFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+    .about-float-card {
+      position: absolute;
+      background: white;
+      border-radius: 15px;
+      padding: 20px 25px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+      display: flex; align-items: center; gap: 12px;
+      animation: floatCard 5s ease-in-out infinite;
+    }
+    .about-float-card.card1 { bottom: 30px; right: -20px; }
+    .about-float-card.card2 { top: 30px; left: -20px; animation-delay: 1.5s; }
+    .about-float-card .icon {
+      width: 45px; height: 45px;
+      background: linear-gradient(135deg, var(--warm), var(--warm-light));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+    }
+    .about-float-card .info h4 { font-weight: 700; font-size: 0.95rem; }
+    .about-float-card .info p { font-size: 0.8rem; color: #888; }
+    @keyframes floatCard {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* HOW IT WORKS */
+    #how {
+      background: linear-gradient(180deg, var(--cream), white);
+    }
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px;
+      margin-top: 60px;
+      position: relative;
+    }
+    .how-grid::before {
+      content: '';
+      position: absolute;
+      top: 60px; left: 10%; right: 10%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--warm), transparent);
+    }
+    .how-step {
+      text-align: center;
+      padding: 40px 25px;
+      border-radius: 20px;
+      transition: all 0.4s;
+      position: relative;
+      background: white;
+    }
+    .how-step:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 50px rgba(196,122,59,0.15);
+    }
+    .how-step-num {
+      width: 60px; height: 60px;
+      background: linear-gradient(135deg, var(--warm), var(--warm-light));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 800; font-size: 1.3rem;
+      margin: 0 auto 25px;
+      position: relative; z-index: 2;
+      box-shadow: 0 8px 25px rgba(196,122,59,0.3);
+    }
+    .how-step-icon {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+    }
+    .how-step h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; margin-bottom: 10px;
+    }
+    .how-step p {
+      font-size: 0.9rem; color: #777; line-height: 1.7;
+    }
+
+    /* FEATURES */
+    #features {
+      background: var(--dark);
+      color: white;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin-top: 60px;
+    }
+    .feature-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 40px 30px;
+      transition: all 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 3px;
+      background: linear-gradient(90deg, var(--warm), var(--warm-light));
+      transform: scaleX(0);
+      transition: transform 0.4s;
+      transform-origin: left;
+    }
+    .feature-card:hover::before { transform: scaleX(1); }
+    .feature-card:hover {
+      background: rgba(255,255,255,0.08);
+      transform: translateY(-8px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+    .feature-icon {
+      width: 65px; height: 65px;
+      background: linear-gradient(135deg, rgba(196,122,59,0.2), rgba(196,122,59,0.05));
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem;
+      margin-bottom: 25px;
+    }
+    .feature-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem; margin-bottom: 12px;
+    }
+    .feature-card p {
+      color: rgba(255,255,255,0.6);
+      line-height: 1.8; font-size: 0.95rem;
+    }
+
+    /* PRODUCTS */
+    #products {
+      background: white;
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 35px;
+      margin-top: 60px;
+    }
+    .product-card {
+      border-radius: 24px;
+      overflow: hidden;
+      background: var(--cream);
+      transition: all 0.4s;
+      cursor: pointer;
+    }
+    .product-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.1);
+    }
+    .product-img {
+      height: 280px;
+      background: linear-gradient(135deg, #E8D5C0, #D4A574);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .product-img::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.1));
+    }
+    .product-tag {
+      position: absolute; top: 15px; right: 15px;
+      background: var(--warm);
+      color: white;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      z-index: 2;
+    }
+    .product-info {
+      padding: 30px;
+    }
+    .product-info h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+    }
+    .product-info .flavor {
+      font-size: 0.85rem;
+      color: var(--warm);
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+    .product-info p {
+      color: #777;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+    .product-meta {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .product-price {
+      font-size: 1.3rem; font-weight: 700; color: var(--dark);
+    }
+    .product-price small {
+      font-size: 0.8rem; color: #999; font-weight: 400;
+    }
+    .product-btn {
+      background: var(--dark);
+      color: white;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .product-btn:hover {
+      background: var(--warm);
+      transform: scale(1.05);
+    }
+
+    /* STATS */
+    #stats {
+      background: linear-gradient(135deg, var(--warm), #B5651D);
+      color: white;
+      padding: 80px 60px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      text-align: center;
+    }
+    .stat-item h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 4vw, 3.5rem);
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+    .stat-item p {
+      font-size: 0.95rem;
+      opacity: 0.85;
+      letter-spacing: 1px;
+    }
+
+    /* SUSTAINABILITY */
+    #sustainability {
+      background: linear-gradient(135deg, #1a2e0a, #2D5016, #1a2e0a);
+      color: white;
+    }
+    .sustain-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      margin-top: 50px;
+    }
+    .sustain-features {
+      display: grid; gap: 25px;
+    }
+    .sustain-item {
+      display: flex; gap: 20px;
+      padding: 25px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: all 0.3s;
+    }
+    .sustain-item:hover {
+      background: rgba(255,255,255,0.1);
+      transform: translateX(5px);
+    }
+    .sustain-icon {
+      width: 55px; height: 55px;
+      min-width: 55px;
+      background: rgba(74,122,43,0.3);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+    }
+    .sustain-item h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+    }
+    .sustain-item p {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.7;
+    }
+    .sustain-visual {
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .earth-graphic {
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4A7A2B, #2D5016);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8rem;
+      position: relative;
+      animation: earthRotate 20s linear infinite;
+      box-shadow: 0 0 80px rgba(74,122,43,0.3), inset 0 0 60px rgba(0,0,0,0.2);
+    }
+    @keyframes earthRotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .orbit-ring {
+      position: absolute;
+      border: 1px dashed rgba(255,255,255,0.15);
+      border-radius: 50%;
+      animation: orbitSpin 15s linear infinite;
+    }
+    .orbit-ring:nth-child(1) { width: 380px; height: 380px; }
+    .orbit-ring:nth-child(2) { width: 460px; height: 460px; animation-direction: reverse; animation-duration: 20s; }
+    @keyframes orbitSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* TESTIMONIALS */
+    #testimonials {
+      background: var(--cream);
+    }
+    .testimonial-slider {
+      margin-top: 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .testimonial-track {
+      display: flex;
+      transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .testimonial-card {
+      min-width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 60px;
+      align-items: center;
+      padding: 50px;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+    }
+    .testimonial-avatar {
+      width: 100%; height: 300px;
+      background: linear-gradient(135deg, var(--warm-light), var(--warm));
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 5rem;
+    }
+    .testimonial-stars { color: #FFD700; font-size: 1.2rem; margin-bottom: 15px; }
+    .testimonial-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      line-height: 1.6;
+      margin-bottom: 25px;
+      color: var(--dark);
+    }
+    .testimonial-author h4 { font-weight: 700; font-size: 1.1rem; }
+    .testimonial-author p { color: #888; font-size: 0.9rem; }
+    .testimonial-controls {
+      display: flex; gap: 15px; justify-content: center; margin-top: 30px;
+    }
+    .testimonial-btn {
+      width: 50px; height: 50px;
+      border-radius: 50%;
+      border: 2px solid var(--warm);
+      background: transparent;
+      color: var(--warm);
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.3s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .testimonial-btn:hover {
+      background: var(--warm);
+      color: white;
+    }
+    .testimonial-dots {
+      display: flex; gap: 8px; justify-content: center; margin-top: 20px;
+    }
+    .testimonial-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #ddd;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .testimonial-dot.active {
+      background: var(--warm);
+      width: 30px;
+      border-radius: 5px;
+    }
+
+    /* NEPAL */
+    #nepal {
+      background: white;
+      text-align: center;
+    }
+    .nepal-banner {
+      margin-top: 50px;
+      padding: 60px;
+      background: linear-gradient(135deg, #1A1209, #3D2914);
+      border-radius: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+    .nepal-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%; right: -20%;
+      width: 60%; height: 200%;
+      background: radial-gradient(ellipse, rgba(196,58,58,0.15), transparent);
+    }
+    .nepal-flag-colors {
+      display: flex; gap: 20px; justify-content: center; margin-bottom: 30px;
+    }
+    .flag-stripe {
+      width: 60px; height: 6px; border-radius: 3px;
+    }
+    .flag-stripe:nth-child(1) { background: #C41E3A; }
+    .flag-stripe:nth-child(2) { background: #003893; }
+    .flag-stripe:nth-child(3) { background: #C41E3A; }
+    .nepal-banner h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      color: white;
+      margin-bottom: 15px;
+    }
+    .nepal-banner p {
+      color: rgba(255,255,255,0.7);
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.8;
+      font-size: 1.05rem;
+    }
+    .nepal-icons {
+      display: flex; gap: 40px; justify-content: center; margin-top: 35px;
+    }
+    .nepal-icon-item {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .nepal-icon-item span:first-child { font-size: 2.5rem; }
+    .nepal-icon-item span:last-child {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.85rem;
+    }
+
+    /* TIMELINE */
+    #timeline {
+      background: var(--cream);
+    }
+    .timeline-container {
+      position: relative;
+      max-width: 800px;
+      margin: 60px auto 0;
+    }
+    .timeline-line {
+      position: absolute;
+      left: 50%; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--warm), var(--warm-light));
+      transform: translateX(-50%);
+    }
+    .timeline-item {
+      display: flex;
+      margin-bottom: 50px;
+      position: relative;
+    }
+    .timeline-item:nth-child(odd) { justify-content: flex-start; padding-right: 55%; }
+    .timeline-item:nth-child(even) { justify-content: flex-end; padding-left: 55%; }
+    .timeline-dot {
+      position: absolute;
+      left: 50%; top: 20px;
+      width: 18px; height: 18px;
+      background: var(--warm);
+      border-radius: 50%;
+      transform: translateX(-50%);
+      border: 4px solid var(--cream);
+      box-shadow: 0 0 0 3px var(--warm);
+      z-index: 2;
+    }
+    .timeline-content {
+      background: white;
+      padding: 25px 30px;
+      border-radius: 16px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+      transition: all 0.3s;
+    }
+    .timeline-content:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+    .timeline-year {
+      font-weight: 700; color: var(--warm);
+      font-size: 0.85rem;
+      margin-bottom: 5px;
+    }
+    .timeline-content h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+    .timeline-content p {
+      font-size: 0.9rem;
+      color: #777;
+      line-height: 1.6;
+    }
+
+    /* FAQ */
+    #faq {
+      background: white;
+    }
+    .faq-container {
+      max-width: 750px;
+      margin: 60px auto 0;
+    }
+    .faq-item {
+      border-bottom: 1px solid #eee;
+      padding: 0;
+    }
+    .faq-question {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 25px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--dark);
+      font-family: 'Inter', sans-serif;
+      text-align: left;
+      transition: color 0.3s;
+    }
+    .faq-question:hover { color: var(--warm); }
+    .faq-question .faq-toggle {
+      width: 35px; height: 35px; min-width: 35px;
+      border-radius: 50%;
+      background: var(--cream);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      transition: all 0.3s;
+    }
+    .faq-item.active .faq-toggle {
+      background: var(--warm);
+      color: white;
+      transform: rotate(45deg);
+    }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.4s;
+    }
+    .faq-item.active .faq-answer {
+      max-height: 200px;
+      padding-bottom: 25px;
+    }
+    .faq-answer p {
+      color: #666;
+      line-height: 1.8;
+      font-size: 0.95rem;
+    }
+
+    /* CTA SECTION */
+    #cta {
+      background: linear-gradient(135deg, #1A1209, #2D1F0E);
+      text-align: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    #cta::before {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(196,122,59,0.15), transparent);
+      top: -200px; right: -100px;
+      border-radius: 50%;
+    }
+    #cta .section-desc {
+      color: rgba(255,255,255,0.6);
+      margin: 0 auto 40px;
+    }
+
+    /* CONTACT */
+    #contact {
+      background: var(--cream);
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      margin-top: 50px;
+    }
+    .contact-form {
+      display: grid; gap: 20px;
+    }
+    .form-group {
+      position: relative;
+    }
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px solid #e5e5e5;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s;
+      background: white;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: var(--warm);
+      box-shadow: 0 0 0 4px rgba(196,122,59,0.1);
+    }
+    .form-group textarea { height: 150px; resize: none; }
+    .contact-info {
+      display: flex; flex-direction: column; gap: 25px;
+    }
+    .contact-info-item {
+      display: flex; gap: 20px; align-items: flex-start;
+      padding: 25px;
+      background: white;
+      border-radius: 16px;
+      transition: all 0.3s;
+    }
+    .contact-info-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .contact-icon {
+      width: 50px; height: 50px; min-width: 50px;
+      background: linear-gradient(135deg, var(--warm), var(--warm-light));
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+    }
+    .contact-info-item h4 { font-weight: 700; margin-bottom: 4px; }
+    .contact-info-item p { color: #777; font-size: 0.95rem; line-height: 1.6; }
+
+    /* FOOTER */
+    footer {
+      background: var(--dark);
+      color: white;
+      padding: 80px 60px 30px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 60px;
+      margin-bottom: 60px;
+    }
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 800;
+      margin-bottom: 15px;
+    }
+    .footer-logo span { color: var(--warm); }
+    .footer-desc {
+      color: rgba(255,255,255,0.5);
+      line-height: 1.8;
+      margin-bottom: 25px;
+      font-size: 0.95rem;
+    }
+    .footer-social {
+      display: flex; gap: 12px;
+    }
+    .footer-social a {
+      width: 42px; height: 42px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      transition: all 0.3s;
+      font-size: 1.1rem;
+    }
+    .footer-social a:hover {
+      background: var(--warm);
+      border-color: var(--warm);
+      color: white;
+      transform: translateY(-3px);
+    }
+    .footer-col h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .footer-col a {
+      display: block;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 6px 0;
+      transition: all 0.3s;
+    }
+    .footer-col a:hover {
+      color: var(--warm-light);
+      transform: translateX(5px);
+    }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.85rem;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .reveal {
+      opacity: 0;
+      transform: translateY(50px);
+      transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      section { padding: 80px 30px; }
+      nav { padding: 15px 30px; }
+      nav.scrolled { padding: 12px 30px; }
+      #about { grid-template-columns: 1fr; gap: 40px; }
+      .how-grid { grid-template-columns: repeat(2, 1fr); }
+      .how-grid::before { display: none; }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .products-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 30px; }
+      .sustain-grid { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: repeat(2, 1fr); gap: 30px; }
+      .testimonial-card { grid-template-columns: 1fr; }
+      .testimonial-avatar { height: 200px; }
+    }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .mobile-menu { display: flex; }
+      section { padding: 60px 20px; }
+      .hero-btns { flex-direction: column; align-items: center; }
+      .how-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .products-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr; gap: 25px; }
+      .footer-grid { grid-template-columns: 1fr; gap: 30px; }
+      .timeline-item:nth-child(odd),
+      .timeline-item:nth-child(even) {
+        padding-left: 40px; padding-right: 0;
+        justify-content: flex-start;
+      }
+      .timeline-line { left: 8px; }
+      .timeline-dot { left: 8px; }
+      .nepal-icons { flex-wrap: wrap; gap: 25px; }
+      .testimonial-text { font-size: 1.1rem; }
+      .testimonial-card { padding: 25px; }
+      .custom-cursor { display: none; }
+      footer { padding: 60px 20px 25px; }
+      .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOADER -->
+
+   <!-- 
+  <div id="loader">
+    <div class="loader-steam">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="loader-cup"></div>
+    <p style="color: var(--warm-light); margin-top: 25px; font-size: 0.9rem; letter-spacing: 3px; text-transform: uppercase;">Brewing something special...</p>
+  </div>
+
+   -->
+  
+  <!-- CUSTOM CURSOR -->
+
+  <!--
+   <div class="custom-cursor" id="cursor"></div>
+    -->
+  
+
+
+
+<!-- NAVIGATION -->
+  <nav id="navbar">
+    <div class="nav-logo">
+      <img src="logonobg.png" alt="Cup Logo" class="logo-image" width="90px"/>
+      <span>स्वादCup<span>.</span></span>
+    </div>
+    <div class="nav-links">
+      <a href="#about">Our Story</a>
+      <a href="#how">How It Works</a>
+      <a href="#products">Products</a>
+      <a href="#sustainability">Impact</a>
+      <a href="#testimonials">Reviews</a>
+      <a href="#contact">Contact</a>
+      <a href="#cta" class="nav-cta">Order Now</a>
+    </div>
+    <div class="hamburger" id="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobileMenu">
+    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=cup&backgroundType=gradientLinear&backgroundColor=C47A3B,E8A862" alt="Cup Logo" style="width: 60px; height: 60px; border-radius: 50%; margin-bottom: 20px;" />
+    <a href="#about" onclick="closeMobile()">Our Story</a>
+    <a href="#how" onclick="closeMobile()">How It Works</a>
+    <a href="#products" onclick="closeMobile()">Products</a>
+    <a href="#sustainability" onclick="closeMobile()">Impact</a>
+    <a href="#testimonials" onclick="closeMobile()">Reviews</a>
+    <a href="#contact" onclick="closeMobile()">Contact</a>
+    <a href="#cta" onclick="closeMobile()" style="color: var(--warm);">Order Now</a>
+  </div>
+
+
+
+
+
+<!-- HERO SECTION -->
+  <section id="hero">
+    <div class="hero-bg-pattern"></div>
+    <div class="hero-particles" id="particles"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Proudly Made in Nepal 🇳🇵
+      </div>
+      <h1 class="hero-title">
+        Drink Your Tea.<br>
+        <span class="accent">Eat Your</span> <span class="outline">Cup.</span>
+      </h1>
+      <p class="hero-subtitle-handwritten">Zero waste. All taste. 100% delicious.</p>
+      <p class="hero-desc">
+        We craft premium edible cups from natural flour that hold hot beverages for up to 45 minutes — then become the most delicious part of your tea break.
+      </p>
+      <div class="hero-btns">
+        <a href="#products" class="btn-primary">
+          Explore Our Cups
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="#about" class="btn-secondary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+          Watch Our Story
+        </a>
+      </div>
+    </div>
+    <div class="hero-scroll-indicator">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-section">
+    <div class="marquee-track" id="marqueeTrack">
+      <span class="marquee-item"><span class="sep"></span> 100% Edible</span>
+      <span class="marquee-item"><span class="sep"></span> Made from Natural Flour</span>
+      <span class="marquee-item"><span class="sep"></span> Heat Resistant up to 45 min</span>
+      <span class="marquee-item"><span class="sep"></span> Zero Waste</span>
+      <span class="marquee-item"><span class="sep"></span> Crispy & Delicious</span>
+      <span class="marquee-item"><span class="sep"></span> Proudly Nepali</span>
+      <span class="marquee-item"><span class="sep"></span> Eco-Friendly</span>
+      <span class="marquee-item"><span class="sep"></span> 100% Edible</span>
+      <span class="marquee-item"><span class="sep"></span> Made from Natural Flour</span>
+      <span class="marquee-item"><span class="sep"></span> Heat Resistant up to 45 min</span>
+      <span class="marquee-item"><span class="sep"></span> Zero Waste</span>
+      <span class="marquee-item"><span class="sep"></span> Crispy & Delicious</span>
+      <span class="marquee-item"><span class="sep"></span> Proudly Nepali</span>
+      <span class="marquee-item"><span class="sep"></span> Eco-Friendly</span>
+    </div>
+  </div>
+
+  <!-- ABOUT / STORY -->
+  <section id="about">
+    <div class="about-visual reveal">
+      <div class="cup-illustration">
+        <div style="text-align:center;">
+          <div class="cup-steam-anim" style="position:relative; top:auto; left:auto; transform:none; justify-content:center; margin-bottom:10px;">
+            <span></span><span></span><span></span>
+          </div>
+          <div class="cup-3d"></div>
+          <p style="margin-top:30px; font-family:'Caveat',cursive; font-size:1.3rem; color:#8B6914;">Crispy. Tasty. Edible.</p>
+        </div>
+      </div>
+      <div class="about-float-card card1">
+        <div class="icon">🌿</div>
+        <div class="info">
+          <h4>100% Natural</h4>
+          <p>No preservatives</p>
+        </div>
+      </div>
+      <div class="about-float-card card2">
+        <div class="icon">🔥</div>
+        <div class="info">
+          <h4>45 Min Resist</h4>
+          <p>High temperature</p>
+        </div>
+      </div>
+    </div>
+    <div class="reveal reveal-delay-2">
+      <div class="section-label">Our Story</div>
+      <h2 class="section-title">Born in the Himalayas,<br>Crafted for the World</h2>
+      <p class="section-desc">
+        Cup was born from a simple observation in the bustling tea houses of Kathmandu — thousands of disposable cups discarded every day, polluting our beautiful valleys and rivers.
+      </p>
+      <br>
+      <p class="section-desc">
+        We asked: <em>what if you could just eat the cup?</em> Our team of food scientists and bakers spent two years perfecting a cup made from high-quality Nepali flour — crispy, flavorful, and strong enough to hold piping hot tea for 40 to 45 minutes.
+      </p>
+      <br>
+      <p class="section-desc">
+        Today, Cup is more than a product — it's a movement. A movement toward zero-waste tea culture, rooted in the traditions and innovation of Nepal.
+      </p>
+      <div style="display:flex; gap:40px; margin-top:35px;">
+        <div>
+          <h3 style="font-family:'Playfair Display',serif; font-size:2rem; color:var(--warm);">2023</h3>
+          <p style="color:#888; font-size:0.9rem;">Founded</p>
+        </div>
+        <div>
+          <h3 style="font-family:'Playfair Display',serif; font-size:2rem; color:var(--warm);">Nepal</h3>
+          <p style="color:#888; font-size:0.9rem;">Origin</p>
+        </div>
+        <div>
+          <h3 style="font-family:'Playfair Display',serif; font-size:2rem; color:var(--warm);">100%</h3>
+          <p style="color:#888; font-size:0.9rem;">Natural</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div style="text-align:center;" class="reveal">
+      <div class="section-label" style="justify-content:center;">How It Works</div>
+      <h2 class="section-title">From Dough to Drink —<br>In Four Simple Steps</h2>
+      <p class="section-desc" style="margin:0 auto;">
+        Our proprietary process transforms simple flour into an engineering marvel of taste and durability.
+      </p>
+    </div>
+    <div class="how-grid">
+      <div class="how-step reveal reveal-delay-1">
+        <div class="how-step-num">1</div>
+        <div class="how-step-icon">🌾</div>
+        <h3>Select Premium Flour</h3>
+        <p>We source the finest quality flour from local Nepali farms, ensuring purity and taste in every batch.</p>
+      </div>
+      <div class="how-step reveal reveal-delay-2">
+        <div class="how-step-num">2</div>
+        <div class="how-step-icon">🍪</div>
+        <h3>Shape & Bake</h3>
+        <p>Our precision molds shape each cup perfectly, then baked at optimal temperature for maximum strength and crispiness.</p>
+      </div>
+      <div class="how-step reveal reveal-delay-3">
+        <div class="how-step-num">3</div>
+        <div class="how-step-icon">☕</div>
+        <h3>Pour & Enjoy</h3>
+        <p>Fill with your favorite hot tea, coffee, or beverage. The cup holds strong for 40-45 minutes at high temperatures.</p>
+      </div>
+      <div class="how-step reveal reveal-delay-4">
+        <div class="how-step-num">4</div>
+        <div class="how-step-icon">😋</div>
+        <h3>Eat the Cup!</h3>
+        <p>Once your drink is finished, bite into the crispy, flavorful cup. Zero waste, maximum satisfaction!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div style="text-align:center;" class="reveal">
+      <div class="section-label" style="justify-content:center; color:var(--warm-light);">Why Choose Cup</div>
+      <h2 class="section-title" style="color:white;">Engineered for Taste.<br>Designed for the Planet.</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon">🔥</div>
+        <h3>45-Min Heat Resistance</h3>
+        <p>Our cups withstand boiling liquids for up to 45 minutes without leaking, softening, or compromising structural integrity.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon">🍪</div>
+        <h3>Irresistible Crunch</h3>
+        <p>Each cup has a satisfying crispy texture with a delightful baked flavor that perfectly complements your beverage.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-icon">🌱</div>
+        <h3>100% Biodegradable</h3>
+        <p>Even if you don't eat it, our cup naturally decomposes within days — unlike plastic cups that take centuries.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon">🧪</div>
+        <h3>Food-Grade Safe</h3>
+        <p>Made with all-natural, food-safe ingredients. No chemicals, no preservatives, no artificial flavors. Just pure goodness.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon">✨</div>
+        <h3>Multiple Flavors</h3>
+        <p>Choose from classic, chocolate, cinnamon, cardamom, and seasonal specials. There's a cup flavor for every taste.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-icon">📦</div>
+        <h3>Bulk Orders Welcome</h3>
+        <p>Perfect for cafes, offices, events, and festivals. We offer custom branding and competitive wholesale pricing.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTS -->
+  <section id="products">
+    <div style="text-align:center;" class="reveal">
+      <div class="section-label" style="justify-content:center;">Our Products</div>
+      <h2 class="section-title">Choose Your Flavor,<br>Savor Every Sip & Bite</h2>
+    </div>
+    <div class="products-grid">
+      <div class="product-card reveal reveal-delay-1">
+        <div class="product-img" style="background: linear-gradient(135deg, #F5E6D3, #D4A574);">
+          <span class="product-tag">Bestseller</span>
+          ☕
+        </div>
+        <div class="product-info">
+          <div class="flavor">Classic • Original Recipe</div>
+          <h3>The Classic Cup</h3>
+          <p>Our signature cup with a warm, buttery flavor and perfect crunch. The one that started it all.</p>
+          <div class="product-meta">
+            <div class="product-price">Rs. 50 <small>/ cup</small></div>
+            <button class="product-btn" onclick="addToCart('Classic Cup')">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+      <div class="product-card reveal reveal-delay-2">
+        <div class="product-img" style="background: linear-gradient(135deg, #D2B48C, #8B4513);">
+          <span class="product-tag">New</span>
+          🍫
+        </div>
+        <div class="product-info">
+          <div class="flavor">Chocolate • Rich & Decadent</div>
+          <h3>Choco Delight Cup</h3>
+          <p>Rich cocoa-infused cup that pairs perfectly with coffee, hot chocolate, or just milk. A chocoholic's dream.</p>
+          <div class="product-meta">
+            <div class="product-price">Rs. 50 <small>/ cup</small></div>
+            <button class="product-btn" onclick="addToCart('Choco Delight Cup')">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+      <div class="product-card reveal reveal-delay-3">
+        <div class="product-img" style="background: linear-gradient(135deg, #C19A6B, #6F4E37);">
+          <span class="product-tag">Exotic</span>
+          🫖
+        </div>
+        <div class="product-info">
+          <div class="flavor">Masala • Nepali Spice Blend</div>
+          <h3>Masala Chai Cup</h3>
+          <p>Infused with cardamom, cinnamon, and ginger — the taste of Nepal in every bite. Made for chiya lovers.</p>
+          <div class="product-meta">
+            <div class="product-price">Rs. 50 <small>/ cup</small></div>
+            <button class="product-btn" onclick="addToCart('Masala Chai Cup')">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section id="stats">
+    <div class="stats-grid">
+      <div class="stat-item reveal">
+        <h2 class="counter" data-target="500000">0</h2>
+        <p>Cups Served & Eaten</p>
+      </div>
+      <div class="stat-item reveal reveal-delay-1">
+        <h2 class="counter" data-target="150">0</h2>
+        <p>Partner Cafés</p>
+      </div>
+      <div class="stat-item reveal reveal-delay-2">
+        <h2 class="counter" data-target="12000">0</h2>
+        <p>KG Plastic Saved</p>
+      </div>
+      <div class="stat-item reveal reveal-delay-3">
+        <h2 class="counter" data-target="98">0</h2>
+        <p>% Customer Satisfaction</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUSTAINABILITY -->
+  <section id="sustainability">
+    <div class="reveal" style="text-align:center;">
+      <div class="section-label" style="justify-content:center; color:var(--forest-light);">Our Impact</div>
+      <h2 class="section-title" style="color:white;">A Cup That Loves<br>the Planet Back</h2>
+    </div>
+    <div class="sustain-grid">
+      <div class="sustain-features">
+        <div class="sustain-item reveal">
+          <div class="sustain-icon">🗑️</div>
+          <div>
+            <h4>Zero Waste</h4>
+            <p>Every cup is either eaten or naturally decomposes within days, leaving no trace behind.</p>
+          </div>
+        </div>
+        <div class="sustain-item reveal reveal-delay-1">
+          <div class="sustain-icon">🏔️</div>
+          <div>
+            <h4>Protecting Nepal's Beauty</h4>
+            <p>We're helping keep the Himalayas clean by replacing millions of single-use plastic cups every year.</p>
+          </div>
+        </div>
+        <div class="sustain-item reveal reveal-delay-2">
+          <div class="sustain-icon">👩‍🌾</div>
+          <div>
+            <h4>Supporting Local Farmers</h4>
+            <p>We source flour directly from Nepali farms, empowering local agriculture and rural communities.</p>
+          </div>
+        </div>
+        <div class="sustain-item reveal reveal-delay-3">
+          <div class="sustain-icon">♻️</div>
+          <div>
+            <h4>Carbon Neutral Goal</h4>
+            <p>We're on track to achieve full carbon neutrality in our production process by 2026.</p>
+          </div>
+        </div>
+      </div>
+      <div class="sustain-visual reveal">
+        <div class="orbit-ring"></div>
+        <div class="orbit-ring"></div>
+        <div class="earth-graphic">🌏</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section id="testimonials">
+    <div style="text-align:center;" class="reveal">
+      <div class="section-label" style="justify-content:center;">What People Say</div>
+      <h2 class="section-title">Loved by Tea Lovers<br>Across Nepal & Beyond</h2>
+    </div>
+    <div class="testimonial-slider reveal">
+      <div class="testimonial-track" id="testimonialTrack">
+        <div class="testimonial-card">
+          <div class="testimonial-avatar">👨‍💼</div>
+          <div>
+            <div class="testimonial-stars">★ ★ ★ ★ ★</div>
+            <p class="testimonial-text">"I couldn't believe I was eating my cup! The flavor is amazing and it held my hot chiya for a solid 40 minutes. This is the future of beverages in Nepal."</p>
+            <div class="testimonial-author">
+              <h4>Rajesh Shrestha</h4>
+              <p>Café Owner, Kathmandu</p>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-avatar">👩‍🔬</div>
+          <div>
+            <div class="testimonial-stars">★ ★ ★ ★ ★</div>
+            <p class="testimonial-text">"As an environmental scientist, I'm impressed by the innovation. The cups are sturdy, delicious, and truly zero-waste. Cup is solving a real problem."</p>
+            <div class="testimonial-author">
+              <h4>Dr. Anita Tamang</h4>
+              <p>Environmental Scientist, Pokhara</p>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-avatar">👨‍🍳</div>
+          <div>
+            <div class="testimonial-stars">★ ★ ★ ★ ★</div>
+            <p class="testimonial-text">"We switched to Cup for our entire hotel chain. Guests absolutely love eating their cups after tea. It's become a highlight of their stay in Nepal!"</p>
+            <div class="testimonial-author">
+              <h4>Bibek Gurung</h4>
+              <p>Hotel Chain Manager, Chitwan</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-controls">
+        <button class="testimonial-btn" onclick="prevTestimonial()">←</button>
+        <button class="testimonial-btn" onclick="nextTestimonial()">→</button>
+      </div>
+      <div class="testimonial-dots" id="testimonialDots">
+        <span class="testimonial-dot active" onclick="goToTestimonial(0)"></span>
+        <span class="testimonial-dot" onclick="goToTestimonial(1)"></span>
+        <span class="testimonial-dot" onclick="goToTestimonial(2)"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEPAL SECTION -->
+  <section id="nepal">
+    <div class="reveal">
+      <div class="section-label" style="justify-content:center;">Made with Nepali Pride</div>
+      <h2 class="section-title">From the Heart of the<br>Himalayas to Your Hands</h2>
+      <p class="section-desc" style="margin:0 auto;">
+        Cup is proudly designed, developed, and manufactured in Nepal — creating jobs, supporting farmers, and showcasing Nepali innovation to the world.
+      </p>
+    </div>
+    <div class="nepal-banner reveal">
+      <div class="nepal-flag-colors">
+        <div class="flag-stripe"></div>
+        <div class="flag-stripe"></div>
+        <div class="flag-stripe"></div>
+      </div>
+      <h2>🇳🇵 Proudly Nepali</h2>
+      <p>Our cups are crafted with love in Kathmandu Valley using locally sourced ingredients, traditional baking wisdom, and modern food technology. Every cup you eat supports the Nepali economy and environment.</p>
+      <div class="nepal-icons">
+        <div class="nepal-icon-item">
+          <span>🏔️</span>
+          <span>Himalayan Origin</span>
+        </div>
+        <div class="nepal-icon-item">
+          <span>🌾</span>
+          <span>Local Ingredients</span>
+        </div>
+        <div class="nepal-icon-item">
+          <span>👷</span>
+          <span>200+ Jobs Created</span>
+        </div>
+        <div class="nepal-icon-item">
+          <span>🏭</span>
+          <span>Made in Kathmandu</span>
+        </div>
+        <div class="nepal-icon-item">
+          <span>💚</span>
+          <span>Eco Innovation</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section id="timeline">
+    <div style="text-align:center;" class="reveal">
+      <div class="section-label" style="justify-content:center;">Our Journey</div>
+      <h2 class="section-title">Milestones That<br>Shaped Cup</h2>
+    </div>
+    <div class="timeline-container">
+      <div class="timeline-line"></div>
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-year">2022 — The Idea</div>
+          <h4>A Problem Noticed</h4>
+          <p>Our founders noticed the massive plastic cup waste in Kathmandu's tea stalls and envisioned an edible alternative.</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-year">2023 — R&D Phase</div>
+          <h4>Perfecting the Recipe</h4>
+          <p>After 200+ experiments, we cracked the formula for a cup that's both heat-resistant and delicious.</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-year">2024 — Launch</div>
+          <h4>Cup Goes Live</h4>
+          <p>First batch sold in Kathmandu. Went viral on social media. 10,000 cups sold in the first month.</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-year">2025 — Scaling Up</div>
+          <h4>National Expansion</h4>
+          <p>Expanded to 150+ cafés across Nepal. Launched new flavors, bulk orders, and began exploring international markets.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div style="text-align:center;" class="reveal">
+      <div class="section-label" style="justify-content:center;">FAQ</div>
+      <h2 class="section-title">Got Questions?<br>We've Got Answers</h2>
+    </div>
+    <div class="faq-container reveal">
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          How long can the cup hold hot liquids?
+          <span class="faq-toggle">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Our cups can withstand hot beverages for 40 to 45 minutes at temperatures up to 90°C. The proprietary baking process creates a heat-resistant barrier that keeps the cup sturdy while your drink stays hot.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          What is the cup made of?
+          <span class="faq-toggle">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Our cups are made from high-quality wheat flour, butter, sugar, and natural flavoring. All ingredients are food-grade, 100% natural, and contain no artificial preservatives or chemicals.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Does it taste good?
+          <span class="faq-toggle">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Absolutely! Our cups have a delicious crispy, biscuit-like flavor with a satisfying crunch. Available in Classic, Chocolate, and Masala Chai variants — each crafted to complement your drink.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Can I place bulk orders for my café or event?
+          <span class="faq-toggle">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Yes! We welcome bulk orders for cafés, restaurants, hotels, corporate events, and festivals. We also offer custom branding options. Contact us for wholesale pricing and partnership details.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Is it safe for people with allergies?
+          <span class="faq-toggle">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Our cups contain wheat (gluten) and may contain traces of dairy. They are free from nuts, soy, and eggs. If you have specific dietary concerns, please contact us before ordering.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Do you ship internationally?
+          <span class="faq-toggle">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>We currently deliver across Nepal. International shipping is coming soon! Sign up for our newsletter to be the first to know when we expand globally.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="cta">
+    <div class="reveal">
+      <div class="section-label" style="justify-content:center; color:var(--warm-light);">Ready to Try?</div>
+      <h2 class="section-title" style="color:white; max-width:700px; margin:0 auto 10px;">Join the Edible Cup<br>Revolution Today</h2>
+      <p class="section-desc" style="text-align:center;">
+        Experience the future of drinking. Order your first batch of Cup edible cups and taste the difference — for you and the planet.
+      </p>
+      <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap;">
+        <a href="#products" class="btn-primary" style="font-size:1.1rem; padding:18px 45px;">
+          Order Now
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="#contact" class="btn-secondary" style="font-size:1.1rem; padding:18px 45px;">
+          Partner With Us
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="reveal">
+      <div class="section-label">Get In Touch</div>
+      <h2 class="section-title">Let's Talk About<br>Your Cup Needs</h2>
+    </div>
+    <div class="contact-grid">
+      <form class="contact-form reveal" onsubmit="handleSubmit(event)">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+          <div class="form-group">
+            <input type="text" placeholder="Your Name" required>
+          </div>
+          <div class="form-group">
+            <input type="email" placeholder="Your Email" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <input type="text" placeholder="Subject">
+        </div>
+        <div class="form-group">
+          <textarea placeholder="Your Message"></textarea>
+        </div>
+        <button type="submit" class="btn-primary" style="justify-content:center; width:100%;">
+          Send Message
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </form>
+      <div class="contact-info reveal reveal-delay-2">
+        <div class="contact-info-item">
+          <div class="contact-icon">📍</div>
+          <div>
+            <h4>Visit Us</h4>
+            <p>Kathmandu<br>Nepal 44600</p>
+          </div>
+        </div>
+        <div class="contact-info-item">
+          <div class="contact-icon">📧</div>
+          <div>
+            <h4>Email Us</h4>
+            <p>hello@cupnepal.com<br>orders@cupnepal.com</p>
+          </div>
+        </div>
+        <div class="contact-info-item">
+          <div class="contact-icon">📞</div>
+          <div>
+            <h4>Call Us</h4>
+            <p>+977-1-4XXXXXX<br>+977-98XXXXXXXX</p>
+          </div>
+        </div>
+        <div class="contact-info-item">
+          <div class="contact-icon">⏰</div>
+          <div>
+            <h4>Business Hours</h4>
+            <p>Sun - Fri: 8:00 AM - 6:00 PM<br>Saturday: 9:00 AM - 2:00 PM</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">Cup<span>.</span></div>
+        <p class="footer-desc">
+          Crafting edible cups in Nepal. Drink your tea. Eat your cup. Save the planet — one sip at a time.
+        </p>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/people/%E0%A4%B8%E0%A5%8D%E0%A4%B5%E0%A4%BE%E0%A4%A6Cup/61573345522929/" title="Facebook">f</a>
+          <a href="#" title="Instagram">ig</a>
+          <a href="#" title="Twitter">𝕏</a>
+          <a href="#" title="LinkedIn">in</a>
+          <a href="#" title="TikTok">tk</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#about">About Us</a>
+        <a href="#how">How It Works</a>
+        <a href="#timeline">Our Journey</a>
+        <a href="#sustainability">Impact</a>
+        <a href="#">Careers</a>
+      </div>
+      <div class="footer-col">
+        <h4>Products</h4>
+        <a href="#products">Classic Cup</a>
+        <a href="#products">Choco Delight</a>
+        <a href="#products">Masala Chai</a>
+        <a href="#">Bulk Orders</a>
+        <a href="#">Custom Branding</a>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <a href="#faq">FAQs</a>
+        <a href="#contact">Contact</a>
+        <a href="#">Shipping Info</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Cup Nepal. All rights reserved. Made in Kathmandu.</p>
+      <p>🇳🇵 Proudly Nepali Innovation</p>
+    </div>
+  </footer>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" style="position:fixed; bottom:30px; right:30px; background:var(--dark); color:white; padding:16px 28px; border-radius:14px; box-shadow:0 15px 40px rgba(0,0,0,0.3); transform:translateY(100px); opacity:0; transition:all 0.4s; z-index:9999; display:flex; align-items:center; gap:12px; font-weight:500;">
+    <span id="toastIcon" style="font-size:1.3rem;">✅</span>
+    <span id="toastMsg">Item added to cart!</span>
+  </div>
+
+  <script>
+    // ========== LOADER ==========
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('loader').classList.add('hidden');
+      }, 2000);
+    });
+
+    // ========== CUSTOM CURSOR ==========
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', (e) => {
+      cursor.style.left = e.clientX - 10 + 'px';
+      cursor.style.top = e.clientY - 10 + 'px';
+    });
+    document.querySelectorAll('a, button, .product-card, .faq-question').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+    });
+
+    // ========== NAVBAR ==========
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // ========== HAMBURGER ==========
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      mobileMenu.classList.toggle('active');
+      document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+    });
+    function closeMobile() {
+      hamburger.classList.remove('active');
+      mobileMenu.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // ========== HERO PARTICLES ==========
+    const particlesContainer = document.getElementById('particles');
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('div');
+      p.classList.add('particle');
+      p.style.left = Math.random() * 100 + '%';
+      p.style.animationDuration = (4 + Math.random() * 6) + 's';
+      p.style.animationDelay = Math.random() * 6 + 's';
+      p.style.width = p.style.height = (2 + Math.random() * 4) + 'px';
+      particlesContainer.appendChild(p);
+    }
+
+    // ========== SCROLL REVEAL ==========
+    const revealElements = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    revealElements.forEach(el => observer.observe(el));
+
+    // ========== COUNTER ANIMATION ==========
+    const counters = document.querySelectorAll('.counter');
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = parseInt(el.dataset.target);
+          let current = 0;
+          const increment = target / 80;
+          const suffix = target >= 1000 ? (target >= 100000 ? 'K+' : '+') : (target === 98 ? '%' : '+');
+          const displayTarget = target >= 100000 ? target / 1000 : target;
+
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              current = target;
+              clearInterval(timer);
+            }
+            if (target >= 100000) {
+              el.textContent = Math.floor(current / 1000) + 'K+';
+            } else if (target === 98) {
+              el.textContent = Math.floor(current) + '%';
+            } else {
+              el.textContent = Math.floor(current).toLocaleString() + '+';
+            }
+          }, 25);
+          counterObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+    counters.forEach(c => counterObserver.observe(c));
+
+    // ========== TESTIMONIAL SLIDER ==========
+    let currentTestimonial = 0;
+    const track = document.getElementById('testimonialTrack');
+    const dots = document.querySelectorAll('.testimonial-dot');
+    const totalTestimonials = 3;
+
+    function updateTestimonial() {
+      track.style.transform = `translateX(-${currentTestimonial * 100}%)`;
+      dots.forEach((d, i) => d.classList.toggle('active', i === currentTestimonial));
+    }
+    function nextTestimonial() {
+      currentTestimonial = (currentTestimonial + 1) % totalTestimonials;
+      updateTestimonial();
+    }
+    function prevTestimonial() {
+      currentTestimonial = (currentTestimonial - 1 + totalTestimonials) % totalTestimonials;
+      updateTestimonial();
+    }
+    function goToTestimonial(i) {
+      currentTestimonial = i;
+      updateTestimonial();
+    }
+    // Auto slide
+    setInterval(nextTestimonial, 6000);
+
+    // ========== FAQ TOGGLE ==========
+    function toggleFaq(btn) {
+      const item = btn.parentElement;
+      const isActive = item.classList.contains('active');
+      document.querySelectorAll('.faq-item').forEach(f => f.classList.remove('active'));
+      if (!isActive) item.classList.add('active');
+    }
+
+    // ========== TOAST ==========
+    function showToast(msg, icon = '✅') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      document.getElementById('toastIcon').textContent = icon;
+      toast.style.transform = 'translateY(0)';
+      toast.style.opacity = '1';
+      setTimeout(() => {
+        toast.style.transform = 'translateY(100px)';
+        toast.style.opacity = '0';
+      }, 3000);
+    }
+
+    function addToCart(name) {
+      showToast(`${name} added to cart!`, '🛒');
+    }
+
+    function handleSubmit(e) {
+      e.preventDefault();
+      showToast('Message sent successfully!', '📨');
+      e.target.reset();
+    }
+
+    // ========== SMOOTH SCROLL FOR NAV ==========
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // ========== TILT EFFECT ON PRODUCT CARDS ==========
+    document.querySelectorAll('.product-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = (y - centerY) / 20;
+        const rotateY = (centerX - x) / 20;
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+      });
+    });
+
+    // ========== NAVBAR ACTIVE LINK HIGHLIGHT ==========
+    const sections = document.querySelectorAll('section[id]');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop - 200;
+        if (window.scrollY >= sectionTop) {
+          current = section.getAttribute('id');
+        }
+      });
+      document.querySelectorAll('.nav-links a:not(.nav-cta)').forEach(link => {
+        link.style.color = '';
+        if (link.getAttribute('href') === '#' + current) {
+          link.style.color = '#E8A862';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
